@@ -7,19 +7,22 @@ const port = 8080;
 
 const server = http.createServer((req, res) => {
     const q = url.parse(req.url, true);
-    const filename = "." + q.pathname+'.html';
-    fs.readFile(filename, (err, data) => {
-        if(err){
-            
-        }
-        res.writeHead(200, {'content-type' : "text/html"});
+    let filename = "." + q.pathname + '.html';
+    if (q.pathname == '/') filename = './index.html';
+    try {
+        const data = fs.readFileSync(filename);
+        res.writeHead(200, { 'content-type': "text/html" });
         res.write(data);
-        return res.end(data);
-    });
+        return res.end();
+    }
+    catch {
+        const data = fs.readFileSync("404.html");
+        res.writeHead(404, { 'content-type': "text/html" });
+        res.write(data);
+        return res.end();
+    }
 })
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}`)
-})  
-
-// the code redirect users to about and contact-me pages successfully
+})
